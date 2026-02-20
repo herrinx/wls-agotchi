@@ -367,6 +367,12 @@
             text-align: center;
         }
 
+        .special-actions .actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
         .notification {
             position: fixed;
             top: 20px;
@@ -579,10 +585,7 @@
                     <button class="action-btn" onclick="event.preventDefault(); game.medicine();">💊 Meds</button>
                 </div>
 
-                <div class="special-actions">
-                    <h3>Special Actions</h3>
-                    <div class="actions" id="specialActions"></div>
-                </div>
+                <div class="special-actions" id="specialActionsContainer"></div>
             </div>
 
             <!-- Death Screen -->
@@ -935,21 +938,28 @@
                 document.getElementById('characterStatus').textContent = pet.isSleeping ? 'Sleeping...' : 'Active';
 
                 // Render special actions
-                const specialContainer = document.getElementById('specialActions');
-                specialContainer.innerHTML = '<h3>Special Actions</h3>';
-                const actionsDiv = document.createElement('div');
-                actionsDiv.className = 'actions';
+                const specialContainer = document.getElementById('specialActionsContainer');
+                specialContainer.innerHTML = '';
                 
-                char.specialActions.forEach(action => {
-                    const btn = document.createElement('button');
-                    btn.className = 'action-btn';
-                    btn.textContent = action.name;
-                    btn.disabled = pet.isSleeping;
-                    btn.onclick = (e) => { e.preventDefault(); this.specialAction(action); };
-                    actionsDiv.appendChild(btn);
-                });
-                
-                specialContainer.appendChild(actionsDiv);
+                if (char.specialActions && char.specialActions.length > 0) {
+                    const title = document.createElement('h3');
+                    title.textContent = 'Special Actions';
+                    specialContainer.appendChild(title);
+                    
+                    const actionsDiv = document.createElement('div');
+                    actionsDiv.className = 'actions';
+                    
+                    char.specialActions.forEach(action => {
+                        const btn = document.createElement('button');
+                        btn.className = 'action-btn';
+                        btn.textContent = action.name;
+                        btn.disabled = pet.isSleeping;
+                        btn.onclick = (e) => { e.preventDefault(); this.specialAction(action); };
+                        actionsDiv.appendChild(btn);
+                    });
+                    
+                    specialContainer.appendChild(actionsDiv);
+                }
                 this.updateDisplay();
             }
 
