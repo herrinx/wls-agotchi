@@ -346,22 +346,63 @@
             display: none;
             text-align: center;
             padding: 40px 20px;
+            animation: deathPulse 0.5s ease-in-out;
         }
 
         .dead-screen.active {
             display: block;
         }
 
+        .dead-screen.dramatic-death {
+            animation: dramaticDeath 2s ease-in-out;
+        }
+
         .dead-screen h2 {
             color: var(--neon-red);
-            font-size: 24px;
+            font-size: 32px;
             margin-bottom: 20px;
+            text-shadow: 0 0 20px var(--neon-red);
+            animation: flicker 1.5s infinite;
         }
 
         .dead-screen p {
-            font-size: 14px;
-            opacity: 0.8;
+            font-size: 16px;
+            opacity: 0.9;
             margin-bottom: 30px;
+            color: #fff;
+            line-height: 1.6;
+        }
+
+        .dead-screen .death-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            animation: skullShake 0.5s ease-in-out infinite;
+        }
+
+        @keyframes deathPulse {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes dramaticDeath {
+            0% { transform: scale(1); filter: brightness(1); }
+            10% { transform: scale(1.1); filter: brightness(2); }
+            20% { transform: scale(0.9); filter: brightness(0.5); }
+            30% { transform: scale(1.05); filter: brightness(1.5); }
+            40% { transform: scale(0.95); filter: brightness(0.3); }
+            50% { transform: scale(1.02); filter: brightness(1.2); }
+            100% { transform: scale(1); filter: brightness(1); }
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; text-shadow: 0 0 20px var(--neon-red); }
+            50% { opacity: 0.7; text-shadow: 0 0 30px var(--neon-red), 0 0 50px #ff0000; }
+        }
+
+        @keyframes skullShake {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
         }
 
         .sleeping-overlay {
@@ -482,9 +523,13 @@
 
             <!-- Death Screen -->
             <div class="dead-screen" id="deadScreen">
-                <h2>THEY QUIT!</h2>
+                <div class="death-icon">☠️</div>
+                <h2>THEY QUIT THE PODCAST!</h2>
                 <p id="deathMessage"></p>
-                <button class="btn btn-primary" onclick="game.revive()">🔄 Revive</button>
+                <div style="margin-top: 20px; font-size: 12px; opacity: 0.7; color: var(--neon-red);">
+                    💀 The chaos was too much 💀
+                </div>
+                <button class="btn btn-primary" onclick="game.revive()" style="margin-top: 30px;">🔄 Beg Them to Return</button>
             </div>
 
             <!-- Sleeping Overlay -->
@@ -654,8 +699,8 @@
                 this.pets = {};
                 this.currentPetId = null;
                 this.lastTick = Date.now();
-                this.tickRate = 10000; // 10 seconds (faster decay for quick game)
-                this.decayRate = 2; // stats decay by 2 per tick
+                this.tickRate = 8000; // 8 seconds (faster decay for quick game)
+                this.decayRate = 5; // stats decay by 5 per tick (aggressive)
                 
                 this.load();
                 this.init();
@@ -707,9 +752,17 @@
                         pet.happiness = Math.max(0, pet.happiness - this.decayRate);
                         pet.energy = Math.max(0, pet.energy - this.decayRate);
                         
-                        // Health drops if other stats are low
+                        // Health always drains slowly (living is hard)
+                        pet.health = Math.max(0, pet.health - 2);
+                        
+                        // Health drops FASTER if other stats are low
                         if (pet.hunger < 30 || pet.happiness < 30 || pet.energy < 30) {
                             pet.health = Math.max(0, pet.health - this.decayRate);
+                        }
+                        
+                        // Critical warning when health is low
+                        if (pet.health <= 10 && pet.health > 0) {
+                            // They'll die next tick if not healed
                         }
                     }
                 });
@@ -720,9 +773,30 @@
                     this.applyDecay(1);
                     this.lastTick = Date.now();
                     if (this.currentPetId) {
-                        this.updateDisplay();
+                        const pet = this.pets[this.currentPetId];
+                        if (pet && pet.health <= 0) {
+                            this.triggerDeath();
+                        } else {
+                            this.updateDisplay();
+                        }
                     }
                 }, this.tickRate);
+            }
+
+            triggerDeath() {
+                const pet = this.pets[this.currentPetId];
+                if (!pet || pet.dead) return;
+                
+                pet.dead = true;
+                this.save();
+                this.showDead();
+                
+                // Dramatic death effects
+                const deadScreen = document.getElementById('deadScreen');
+                deadScreen.classList.add('dramatic-death');
+                
+                // Play death sound effect (visual notification)
+                this.showNotification('💀 THEY QUIT! 💀');
             }
 
             renderCharacterSelect() {
@@ -819,8 +893,15 @@
                 document.getElementById('deadScreen').classList.add('active');
                 
                 const char = CHARACTERS[this.currentPetId];
-                document.getElementById('deathMessage').textContent = 
-                    `${char.name} quit the podcast! They couldn't handle the chaos anymore.`;
+                const deathMessages = [
+                    `${char.name} stormed out of the studio! The chaos was too much.`,
+                    `${char.name} rage-quit live on air! No coming back from that.`,
+                    `${char.name} couldn't handle Jeremy anymore. Podcast over.`,
+                    `${char.name} said "I'm out!" and slammed the door.`,
+                    `${char.name} quit mid-recording. The mute button wasn't enough.`
+                ];
+                const randomMessage = deathMessages[Math.floor(Math.random() * deathMessages.length)];
+                document.getElementById('deathMessage').textContent = randomMessage;
             }
 
             updateDisplay() {
@@ -846,6 +927,15 @@
                 const bar = document.getElementById(stat + 'Bar');
                 bar.style.width = value + '%';
                 bar.classList.toggle('critical', value < 20);
+                
+                // Special critical styling for health
+                if (stat === 'health' && value <= 10 && value > 0) {
+                    bar.style.animation = 'pulse 0.3s infinite';
+                    bar.style.background = '#ff0000';
+                } else if (stat === 'health') {
+                    bar.style.animation = '';
+                    bar.style.background = '';
+                }
             }
 
             feed() {
@@ -936,8 +1026,10 @@
                 pet.happiness = 50;
                 pet.energy = 50;
                 pet.isSleeping = false;
+                pet.dead = false;
+                this.save();
                 this.showGame();
-                this.showNotification('They\'re back! 🎉');
+                this.showNotification('They came back! The show must go on! 🎉');
             }
 
             switchCharacter() {
