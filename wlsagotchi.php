@@ -105,11 +105,53 @@
             height: 120px;
             margin-bottom: 15px;
             filter: drop-shadow(0 0 20px rgba(78, 205, 196, 0.3));
+            cursor: pointer;
+            animation: idleBounce 2s ease-in-out infinite;
+            transition: transform 0.1s;
+        }
+
+        .pixel-art:hover {
+            transform: scale(1.05);
+        }
+
+        .pixel-art:active {
+            transform: scale(0.95);
+        }
+
+        .pixel-art.shooting {
+            animation: shootRecoil 0.3s ease-out;
+        }
+
+        @keyframes idleBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        @keyframes shootRecoil {
+            0% { transform: translateX(0) rotate(0); }
+            20% { transform: translateX(-10px) rotate(-5deg); }
+            40% { transform: translateX(5px) rotate(3deg); }
+            60% { transform: translateX(-3px) rotate(-2deg); }
+            80% { transform: translateX(2px) rotate(1deg); }
+            100% { transform: translateX(0) rotate(0); }
         }
 
         .pixel-art svg {
             width: 100%;
             height: 100%;
+        }
+
+        .gun-shot {
+            position: absolute;
+            font-size: 24px;
+            pointer-events: none;
+            animation: shotFly 0.5s ease-out forwards;
+            z-index: 100;
+        }
+
+        @keyframes shotFly {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(100px, -50px) scale(0.5); opacity: 0; }
         }
 
         .character-name {
@@ -494,7 +536,7 @@
             <!-- Game Screen -->
             <div class="game-screen" id="gameScreen">
                 <div class="character-display">
-                    <div class="pixel-art" id="characterArt"></div>
+                    <div class="pixel-art" id="characterArt" onclick="game.shootGun(event)" title="Click to shoot!"></div>
                     <div class="character-name" id="characterName"></div>
                     <div class="character-status" id="characterStatus"></div>
                 </div>
@@ -527,10 +569,10 @@
                 </div>
 
                 <div class="actions">
-                    <button class="action-btn" onclick="game.feed()">🍕 Ammo Up</button>
-                    <button class="action-btn" onclick="game.play()">🎯 Train</button>
-                    <button class="action-btn" onclick="game.sleep()">😴 Sleep</button>
-                    <button class="action-btn" onclick="game.medicine()">💊 Meds</button>
+                    <button class="action-btn" onclick="event.preventDefault(); game.feed();">🍕 Ammo Up</button>
+                    <button class="action-btn" onclick="event.preventDefault(); game.play();">🎯 Train</button>
+                    <button class="action-btn" onclick="event.preventDefault(); game.sleep();">😴 Sleep</button>
+                    <button class="action-btn" onclick="event.preventDefault(); game.medicine();">💊 Meds</button>
                 </div>
 
                 <div class="special-actions">
@@ -897,7 +939,7 @@
                     btn.className = 'action-btn';
                     btn.textContent = action.name;
                     btn.disabled = pet.isSleeping;
-                    btn.onclick = () => this.specialAction(action);
+                    btn.onclick = (e) => { e.preventDefault(); this.specialAction(action); };
                     actionsDiv.appendChild(btn);
                 });
                 
@@ -981,7 +1023,7 @@
                 const bar = document.getElementById(stat + 'Bar');
                 bar.style.width = value + '%';
                 bar.classList.toggle('critical', value < 20);
-                
+
                 // Special critical styling for health
                 if (stat === 'health' && value <= 10 && value > 0) {
                     bar.style.animation = 'pulse 0.3s infinite';
@@ -990,6 +1032,34 @@
                     bar.style.animation = '';
                     bar.style.background = '';
                 }
+            }
+
+            shootGun(event) {
+                event.preventDefault();
+                const pet = this.pets[this.currentPetId];
+                if (!pet || pet.isSleeping || pet.health <= 0) return;
+
+                // Add shooting animation class
+                const art = document.getElementById('characterArt');
+                art.classList.remove('shooting');
+                void art.offsetWidth; // Trigger reflow
+                art.classList.add('shooting');
+
+                // Create gun shot effect
+                const shot = document.createElement('div');
+                shot.className = 'gun-shot';
+                shot.textContent = '🔫💥';
+                shot.style.left = (event.clientX || art.getBoundingClientRect().left + 60) + 'px';
+                shot.style.top = (event.clientY || art.getBoundingClientRect().top) + 'px';
+                document.body.appendChild(shot);
+
+                setTimeout(() => shot.remove(), 500);
+
+                // Small happiness boost from shooting
+                pet.happiness = Math.min(100, pet.happiness + 5);
+                pet.energy = Math.max(0, pet.energy - 3);
+                this.updateDisplay();
+                this.showNotification('Pew pew! 🔫');
             }
 
             feed() {
