@@ -405,6 +405,24 @@
             50% { transform: rotate(5deg); }
         }
 
+        .dead-character-art {
+            width: 150px;
+            height: 100px;
+            margin: 0 auto 20px;
+            filter: grayscale(50%) brightness(0.7);
+            animation: deadFloat 3s ease-in-out infinite;
+        }
+
+        .dead-character-art svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        @keyframes deadFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
         .sleeping-overlay {
             display: none;
             position: absolute;
@@ -523,7 +541,7 @@
 
             <!-- Death Screen -->
             <div class="dead-screen" id="deadScreen">
-                <div class="death-icon">☠️</div>
+                <div class="dead-character-art" id="deadCharacterArt"></div>
                 <h2>THEY QUIT THE PODCAST!</h2>
                 <p id="deathMessage"></p>
                 <div style="margin-top: 20px; font-size: 12px; opacity: 0.7; color: var(--neon-red);">
@@ -902,6 +920,39 @@
                 ];
                 const randomMessage = deathMessages[Math.floor(Math.random() * deathMessages.length)];
                 document.getElementById('deathMessage').textContent = randomMessage;
+                
+                // Show dead pixel art
+                const deadArt = this.createDeadPixelArt(char.color);
+                document.getElementById('deadCharacterArt').innerHTML = deadArt;
+            }
+
+            createDeadPixelArt(color) {
+                return `<svg viewBox="0 0 48 32" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Ground -->
+                    <rect x="0" y="28" width="48" height="4" fill="#2d2d44"/>
+                    <!-- Body laying down -->
+                    <rect x="4" y="20" width="32" height="6" fill="#2C3E50"/>
+                    <rect x="4" y="20" width="32" height="2" fill="#34495E"/>
+                    <!-- Head -->
+                    <rect x="2" y="18" width="8" height="8" fill="#FFDBAC"/>
+                    <!-- X eyes -->
+                    <rect x="3" y="20" width="2" height="2" fill="#333"/>
+                    <rect x="3" y="20" width="1" height="1" fill="#fff"/>
+                    <rect x="4" y="21" width="1" height="1" fill="#fff"/>
+                    <rect x="6" y="20" width="2" height="2" fill="#333"/>
+                    <rect x="6" y="20" width="1" height="1" fill="#fff"/>
+                    <rect x="7" y="21" width="1" height="1" fill="#fff"/>
+                    <!-- Arms -->
+                    <rect x="12" y="22" width="2" height="4" fill="#FFDBAC"/>
+                    <rect x="26" y="22" width="2" height="4" fill="#FFDBAC"/>
+                    <!-- Legs -->
+                    <rect x="32" y="22" width="2" height="4" fill="#1a1a2e"/>
+                    <rect x="36" y="22" width="2" height="4" fill="#1a1a2e"/>
+                    <!-- Flower -->
+                    <rect x="38" y="24" width="2" height="4" fill="#27ae60"/>
+                    <rect x="36" y="18" width="6" height="6" fill="#e74c3c"/>
+                    <rect x="38" y="20" width="2" height="2" fill="#f1c40f"/>
+                </svg>`;
             }
 
             updateDisplay() {
