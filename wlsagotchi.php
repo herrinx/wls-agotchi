@@ -930,28 +930,31 @@
                 return `<svg viewBox="0 0 48 32" xmlns="http://www.w3.org/2000/svg">
                     <!-- Ground -->
                     <rect x="0" y="28" width="48" height="4" fill="#2d2d44"/>
-                    <!-- Body laying down -->
-                    <rect x="4" y="20" width="32" height="6" fill="#2C3E50"/>
-                    <rect x="4" y="20" width="32" height="2" fill="#34495E"/>
+                    <!-- Body laying on back -->
+                    <rect x="8" y="20" width="24" height="6" fill="#2C3E50"/>
+                    <rect x="8" y="20" width="24" height="2" fill="#34495E"/>
                     <!-- Head -->
-                    <rect x="2" y="18" width="8" height="8" fill="#FFDBAC"/>
+                    <rect x="32" y="18" width="8" height="8" fill="#FFDBAC"/>
                     <!-- X eyes -->
-                    <rect x="3" y="20" width="2" height="2" fill="#333"/>
-                    <rect x="3" y="20" width="1" height="1" fill="#fff"/>
-                    <rect x="4" y="21" width="1" height="1" fill="#fff"/>
-                    <rect x="6" y="20" width="2" height="2" fill="#333"/>
-                    <rect x="6" y="20" width="1" height="1" fill="#fff"/>
-                    <rect x="7" y="21" width="1" height="1" fill="#fff"/>
-                    <!-- Arms -->
-                    <rect x="12" y="22" width="2" height="4" fill="#FFDBAC"/>
-                    <rect x="26" y="22" width="2" height="4" fill="#FFDBAC"/>
+                    <rect x="33" y="20" width="2" height="2" fill="#333"/>
+                    <rect x="33" y="20" width="1" height="1" fill="#fff"/>
+                    <rect x="34" y="21" width="1" height="1" fill="#fff"/>
+                    <rect x="36" y="20" width="2" height="2" fill="#333"/>
+                    <rect x="36" y="20" width="1" height="1" fill="#fff"/>
+                    <rect x="37" y="21" width="1" height="1" fill="#fff"/>
+                    <!-- Arms crossed on chest -->
+                    <rect x="12" y="21" width="6" height="2" fill="#FFDBAC"/>
+                    <rect x="22" y="21" width="6" height="2" fill="#FFDBAC"/>
                     <!-- Legs -->
-                    <rect x="32" y="22" width="2" height="4" fill="#1a1a2e"/>
-                    <rect x="36" y="22" width="2" height="4" fill="#1a1a2e"/>
-                    <!-- Flower -->
-                    <rect x="38" y="24" width="2" height="4" fill="#27ae60"/>
-                    <rect x="36" y="18" width="6" height="6" fill="#e74c3c"/>
-                    <rect x="38" y="20" width="2" height="2" fill="#f1c40f"/>
+                    <rect x="8" y="26" width="4" height="2" fill="#1a1a2e"/>
+                    <rect x="28" y="26" width="4" height="2" fill="#1a1a2e"/>
+                    <!-- Microphone on chest like a flower -->
+                    <rect x="18" y="18" width="4" height="8" fill="#2c3e50"/>
+                    <rect x="17" y="16" width="6" height="4" fill="#34495e"/>
+                    <rect x="18" y="17" width="4" height="2" fill="#7f8c8d"/>
+                    <!-- Mic cord -->
+                    <rect x="19" y="26" width="2" height="4" fill="#1a1a2e"/>
+                    <rect x="20" y="28" width="8" height="1" fill="#1a1a2e"/>
                 </svg>`;
             }
 
