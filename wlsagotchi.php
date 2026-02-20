@@ -652,6 +652,7 @@
                 blurb: 'THE BATTLE ORC! Hates everyone and thinks Thanos should\'ve aimed for gun grabbers first.',
                 color: '#e74c3c',
                 specialActions: [
+                    { id: 'ranch', name: '🥗 Eat Ranch', effect: 'happiness', amount: 25, cost: 5 },
                     { id: 'rant', name: '🗣️ Gun Rant', effect: 'happiness', amount: 10, cost: 15 },
                     { id: 'shoot', name: '🔫 Mag Dump', effect: 'happiness', amount: 35, cost: 20 }
                 ],
@@ -708,6 +709,7 @@
                 blurb: 'TOTAL TRAINWRECK! NFA violations, binary triggers, and picking his nose while shooting.',
                 color: '#f39c12',
                 specialActions: [
+                    { id: 'crypto', name: '💰 Check Crypto', effect: 'drain_energy', amount: 30, cost: 0 },
                     { id: 'binary', name: '⚡ Binary Trigger', effect: 'random', amount: 0, cost: 0 },
                     { id: 'nose', name: '👃 Pick & Shoot', effect: 'happiness', amount: 15, cost: 5 }
                 ],
@@ -955,17 +957,23 @@
                 document.getElementById('selectScreen').classList.remove('active');
                 document.getElementById('gameScreen').classList.remove('active');
                 document.getElementById('deadScreen').classList.add('active');
-                
+
                 const char = CHARACTERS[this.currentPetId];
-                const deathMessages = [
-                    `${char.name} stormed out of the studio! The chaos was too much.`,
-                    `${char.name} rage-quit live on air! No coming back from that.`,
-                    `${char.name} couldn't handle Jeremy anymore. Podcast over.`,
-                    `${char.name} said "I'm out!" and slammed the door.`,
-                    `${char.name} quit mid-recording. The mute button wasn't enough.`
-                ];
-                const randomMessage = deathMessages[Math.floor(Math.random() * deathMessages.length)];
-                document.getElementById('deathMessage').textContent = randomMessage;
+                let deathMessage;
+
+                if (char.id === 'shawn') {
+                    deathMessage = "He got 171. Shawn is gone.";
+                } else {
+                    const deathMessages = [
+                        `${char.name} stormed out of the studio! The chaos was too much.`,
+                        `${char.name} rage-quit live on air! No coming back from that.`,
+                        `${char.name} couldn't handle Jeremy anymore. Podcast over.`,
+                        `${char.name} said "I'm out!" and slammed the door.`,
+                        `${char.name} quit mid-recording. The mute button wasn't enough.`
+                    ];
+                    deathMessage = deathMessages[Math.floor(Math.random() * deathMessages.length)];
+                }
+                document.getElementById('deathMessage').textContent = deathMessage;
                 
                 // Show dead pixel art
                 const deadArt = this.createDeadPixelArt(char.color);
@@ -1008,6 +1016,9 @@
                 const pet = this.pets[this.currentPetId];
                 if (!pet || pet.health <= 0) return;
 
+                // Save scroll position to prevent jump
+                const scrollY = window.scrollY;
+
                 this.updateBar('hunger', pet.hunger);
                 this.updateBar('happiness', pet.happiness);
                 this.updateBar('energy', pet.energy);
@@ -1021,6 +1032,9 @@
                 } else {
                     sleepOverlay.classList.remove('active');
                 }
+
+                // Restore scroll position
+                window.scrollTo(0, scrollY);
             }
 
             updateBar(stat, value) {
@@ -1142,6 +1156,10 @@
                     const randomChange = Math.floor(Math.random() * 40) - 10; // -10 to +30
                     pet[randomStat] = Math.max(0, Math.min(100, pet[randomStat] + randomChange));
                     this.showNotification('CHAOS! 🎲');
+                } else if (action.effect === 'drain_energy') {
+                    // Crypto check - drains energy, no cost
+                    pet.energy = Math.max(0, pet.energy - action.amount);
+                    this.showNotification('Crypto crashed! -' + action.amount + ' Energy 😵‍💫');
                 }
 
                 this.updateDisplay();
